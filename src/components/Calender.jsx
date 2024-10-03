@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import '../Styles/Calender.css'; 
 
+
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date()); 
   const [selectedDate, setSelectedDate] = useState(null);
   const [events, setEvents] = useState({}); 
+
   const daysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
   const firstDayOfMonth = (month, year) => new Date(year, month, 1).getDay(); 
 
@@ -29,7 +31,7 @@ const Calendar = () => {
       },
     }));
 
-    closeModal();
+    closeModal(); 
   };
 
   const closeModal = () => {
@@ -50,7 +52,6 @@ const Calendar = () => {
     const totalDays = daysInMonth(month, year);
     const startDay = firstDayOfMonth(month, year) === 0 ? 6 : firstDayOfMonth(month, year) - 1; 
     const monthYearKey = `${year}-${month + 1}`; 
-
     const days = [];
 
     for (let i = 0; i < startDay; i++) {
@@ -60,16 +61,20 @@ const Calendar = () => {
     for (let i = 1; i <= totalDays; i++) {
       const day = i;
       const event = events[monthYearKey]?.[day];
+      const date = new Date(year, month, day);
+      const dayofweek = date.getDay();
 
       days.push(
         <div
           key={day}
-          className={`calendar-day ${event ? 'has-event' : ''}`}
+          className={`calendar-day ${event ? 'has-event' : ''} ${dayofweek === 0 || dayofweek === 6 ? 'weekend': ''}`}
           onClick={() => handleDayClick(day)}
         >
           <div>{day}</div>
           {event && (
-            <div className="event-title">{event.title}</div>
+            <div className="event-title">
+              {event.title.length > 10 ? event.title.slice(0, 10) + '...' : event.title}
+            </div>
           )}
         </div>
       );
@@ -133,17 +138,17 @@ const Calendar = () => {
           <div className="modal-content">
             <h3>Add Event for Day {selectedDate}</h3>
             <form onSubmit={handleEventSubmit}>
-              <div className="event-title">
+              <div className="form-detail">
                 <label>Title: </label>
-                <input type="text" name="title" required />
+                <input type="text" name="title" required className="form-detail-title"/>
               </div>
-              <div className="event-title">
+              <div className="form-detail">
                 <label>Description: </label>
-                <textarea name="description" required />
+                <textarea name="description" required  className="form-detail-title"/>
               </div>
-              <div className="event-title">
+              <div className="form-detail">
                 <label>Remark: </label>
-                <input type="text" name="remark" required />
+                <input type="text" name="remark" required className="form-detail-title"/>
               </div>
               <button type="submit">Save</button>
               <button type="button" className="close-btn" onClick={closeModal}>Close</button>

@@ -1,11 +1,13 @@
 .calendar-page {
     display: flex;
     justify-content: space-between;
-    padding: 20px;
+    padding: 40px;
   }
   
   .calendar-section {
     width: 75%; 
+    border: 1px solid black;
+    padding: 50px;
   }
   
   .entries-section {
@@ -53,11 +55,16 @@
     text-align: center;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    position: relative;
   }
   
   .calendar-day.has-event {
     background-color: #f5f5dc;
     font-weight: bold;
+  }
+
+  .calendar-day.weekend div{
+    color: red;
   }
   
   .calendar-day.empty {
@@ -68,6 +75,10 @@
   .event-title {
     font-size: 12px;
     color: #666;
+    margin-top: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   }
   
   .calendar-day:hover {
@@ -88,7 +99,7 @@
   
   .modal-content {
     background: white;
-    padding: 15px;
+    padding: 20px;
     border-radius: 8px;
     width: 400px;
     max-width: 90%;
@@ -124,6 +135,13 @@
   .event-title{
     margin-bottom: 10px;
     
+  }
+  .form-detail{
+    margin-bottom: 20px;
+  }
+  .form-detail-title{
+    display: flex;
+    margin-top: 10px;
   }
  
   
