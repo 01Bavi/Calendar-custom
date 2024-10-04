@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import '../Styles/Calender.css'; 
 
-
 const Calendar = () => {
-  const [currentDate, setCurrentDate] = useState(new Date()); 
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
-  const [events, setEvents] = useState({}); 
+  const [events, setEvents] = useState({});
 
   const daysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
-  const firstDayOfMonth = (month, year) => new Date(year, month, 1).getDay(); 
+  const firstDayOfMonth = (month, year) => new Date(year, month, 1).getDay();
 
   const handleDayClick = (day) => {
     setSelectedDate(day);
@@ -19,19 +18,27 @@ const Calendar = () => {
     const { title, description, remark } = e.target.elements;
     const monthYearKey = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}`;
 
-    setEvents((prevEvents) => ({
-      ...prevEvents,
-      [monthYearKey]: {
-        ...prevEvents[monthYearKey],
-        [selectedDate]: {
-          title: title.value,
-          description: description.value,
-          remark: remark.value,
+    setEvents((prevEvents) => {
+      const updatedEvents = {
+        ...prevEvents,
+        [monthYearKey]: {
+          ...prevEvents[monthYearKey],
+          [selectedDate]: [
+            ...(prevEvents[monthYearKey]?.[selectedDate] || []),
+            {
+              title: title.value,
+              description: description.value,
+              remark: remark.value,
+            },
+          ].sort((a, b) => a.title.localeCompare(b.title)), 
         },
-      },
-    }));
+      };
 
-    closeModal(); 
+      return updatedEvents;
+    });
+
+    setSelectedDate(selectedDate);
+    closeModal();
   };
 
   const closeModal = () => {
@@ -50,8 +57,8 @@ const Calendar = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     const totalDays = daysInMonth(month, year);
-    const startDay = firstDayOfMonth(month, year) === 0 ? 6 : firstDayOfMonth(month, year) - 1; 
-    const monthYearKey = `${year}-${month + 1}`; 
+    const startDay = firstDayOfMonth(month, year) === 0 ? 6 : firstDayOfMonth(month, year) - 1;
+    const monthYearKey = `${year}-${month + 1}`;
     const days = [];
 
     for (let i = 0; i < startDay; i++) {
@@ -60,22 +67,23 @@ const Calendar = () => {
 
     for (let i = 1; i <= totalDays; i++) {
       const day = i;
-      const event = events[monthYearKey]?.[day];
+      const dayEvents = (events[monthYearKey]?.[day] || []).sort((a, b) => a.title.localeCompare(b.title)); 
       const date = new Date(year, month, day);
       const dayofweek = date.getDay();
 
       days.push(
         <div
           key={day}
-          className={`calendar-day ${event ? 'has-event' : ''} ${dayofweek === 0 || dayofweek === 6 ? 'weekend': ''}`}
+          className={`calendar-day ${dayEvents.length ? 'has-event' : ''} ${dayofweek === 0 || dayofweek === 6 ? 'weekend' : ''}`}
           onClick={() => handleDayClick(day)}
         >
           <div>{day}</div>
-          {event && (
-            <div className="event-title">
+          {dayEvents.slice(0, 2).map((event, index) => ( 
+            <div key={index} className="event-title">
               {event.title.length > 10 ? event.title.slice(0, 10) + '...' : event.title}
             </div>
-          )}
+          ))}
+          {dayEvents.length > 2 && <div className="more-events">+{dayEvents.length - 2} more</div>}
         </div>
       );
     }
@@ -84,27 +92,46 @@ const Calendar = () => {
   };
 
   const renderEventDetails = () => {
-    if (!selectedDate) return <p>No date selected.</p>;
-
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     const monthYearKey = `${year}-${month + 1}`;
-    const event = events[monthYearKey]?.[selectedDate];
+    const daysInCurrentMonth = daysInMonth(month, year);
 
-    if (!event) return <p>No events for this date.</p>;
+  const eventsForMonth = [];
 
+  for (let day = 1; day <= daysInCurrentMonth; day++) {
+    const dayEvents = events[monthYearKey]?.[day] || [];
+    if (dayEvents.length) {
+      eventsForMonth.push({ day, events: dayEvents });
+    }
+  }
+
+  if (!eventsForMonth.length) {
+    return <p>No events for this month.</p>;
+  }
     return (
       <div className="event-details">
-        <h3>Details for Day {selectedDate}</h3>
-        <p><strong>Title:</strong> {event.title}</p>
-        <p><strong>Description:</strong> {event.description}</p>
-        <p><strong>Remark:</strong> {event.remark}</p>
-      </div>
+         <h3>All Event Details {monthNames[month]} {year}</h3>
+      {eventsForMonth.map(({ day, events }) => (
+        <div key={day}>
+          <h4>{monthNames[month]}  {day}</h4>
+          <ul>
+            {events.map((event, index) => (
+              <li key={index}>
+                <p><strong>Title:</strong> {event.title}</p>
+                <p><strong>Description:</strong> {event.description}</p>
+                <p><strong>Remark:</strong> {event.remark}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
     );
   };
 
   const monthNames = [
-    "January", "February", "March", "April", "May", "June", 
+    "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
   ];
 
@@ -133,10 +160,10 @@ const Calendar = () => {
         {renderEventDetails()}
       </div>
 
-      {selectedDate && (
+      {selectedDate &&  (
         <div className="modal">
           <div className="modal-content">
-            <h3>Add Event for Day {selectedDate}</h3>
+            <h3>Add Event for {selectedDate}</h3>
             <form onSubmit={handleEventSubmit}>
               <div className="form-detail">
                 <label>Title: </label>
@@ -144,7 +171,7 @@ const Calendar = () => {
               </div>
               <div className="form-detail">
                 <label>Description: </label>
-                <textarea name="description" required  className="form-detail-title"/>
+                <textarea name="description" required className="form-detail-title"/>
               </div>
               <div className="form-detail">
                 <label>Remark: </label>
