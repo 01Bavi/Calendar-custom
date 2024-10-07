@@ -1,7 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300&display=swap');
+
 .calendar-page {
     display: flex;
     justify-content: space-between;
     padding: 20px;
+    font-family: poppins;
+  
   }
   
   .calendar-section {
@@ -176,3 +180,12 @@
   margin: 5px 0;
 }
   
+.eventhandle-button{
+  margin-left: 10px;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.event-details{
+  font-family: poppins;
+}
