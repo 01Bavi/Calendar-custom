@@ -64,6 +64,7 @@ const Calendar = () => {
         return updatedEvents;
       });
     }
+    closeModal();
   };
 
   const closeModal = () => {
@@ -123,10 +124,6 @@ const Calendar = () => {
     setSelectedEvent(event);
   };
 
-  const handleEventClick = (day, event) => {
-    setEventOptionsVisible(event); 
-  };
-
   const renderEventDetails = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -154,11 +151,17 @@ const Calendar = () => {
             <h4>{monthNames[month]} {day}</h4>
             <ul>
               {events.map((event, index) => (
-                <li key={index} className="event-clickable" onClick={() => handleEventClick(day, event)}>
+                <li key={index} className="event-clickable" >
                   <p><strong>Title:</strong> {event.title}</p>
                   <p><strong>Description:</strong> {event.description}</p>
                   <p><strong>Remark:</strong> {event.remark}</p>
                   
+                  <button
+                  className="show-button"
+                  onClick={() => handleEventEditClick(day, event)}
+                >
+                  Show
+                </button>
                   {eventOptionsVisible === event && (
                     <div className="event-options">
                       <button className="eventhandle-button" onClick={() => handleEventEditClick(day, event)}>Edit</button>
@@ -247,6 +250,7 @@ const Calendar = () => {
               </div>
               <button type="submit">Save</button>
               <button type="button" className="close-btn" onClick={closeModal}>Close</button>
+              <button type="button" className="delete-btn" onClick={() => handleDeleteEvent(selectedDate, selectedEvent)}>Delete</button>
             </form>
           </div>
         </div>
